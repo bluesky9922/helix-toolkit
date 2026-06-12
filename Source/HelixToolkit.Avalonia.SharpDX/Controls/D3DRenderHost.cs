@@ -108,8 +108,7 @@ internal sealed class D3DRenderHost : DefaultRenderHost
     private void UpdateFrame()
     {
         _updateQueued = false;
-        var root = _parent.GetVisualRoot();
-        if (root == null)
+        if (!_parent.IsAttachedToVisualTree())
             return;
 
         Rect bounds = _parent.Bounds;

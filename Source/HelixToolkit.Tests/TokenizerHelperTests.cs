@@ -104,7 +104,7 @@ public class TokenizerHelperTests
     public void NextTokenEmptyThrows()
     {
         var tokenizer = new TokenizerHelper("a,,", CultureInfo.InvariantCulture);
-        Assert.Throws<InvalidOperationException>(() => tokenizer.NextToken());
+        Assert.Throws<InvalidOperationException>((TestDelegate)(() => tokenizer.NextToken()));
     }
 
     [Test]
@@ -112,7 +112,7 @@ public class TokenizerHelperTests
     {
         var tokenizer = new TokenizerHelper("a", CultureInfo.InvariantCulture);
         tokenizer.NextTokenRequired();
-        Assert.Throws<InvalidOperationException>(() => tokenizer.NextTokenRequired());
+        Assert.Throws<InvalidOperationException>((TestDelegate)(() => tokenizer.NextTokenRequired()));
     }
 
     [Test, Sequential]
@@ -128,14 +128,14 @@ public class TokenizerHelperTests
     public void NextTokenRequiredQuoteThrows()
     {
         var tokenizer = new TokenizerHelper("'a", CultureInfo.InvariantCulture);
-        Assert.Throws<InvalidOperationException>(() => tokenizer.NextTokenRequired(true));
+        Assert.Throws<InvalidOperationException>((TestDelegate)(() => tokenizer.NextTokenRequired(true)));
     }
 
     [Test]
     public void NextTokenRequiredEmptyQuoteThrows()
     {
         var tokenizer = new TokenizerHelper("''", CultureInfo.InvariantCulture);
-        Assert.Throws<InvalidOperationException>(() => tokenizer.NextTokenRequired(true));
+        Assert.Throws<InvalidOperationException>((TestDelegate)(() => tokenizer.NextTokenRequired(true)));
     }
 
     [Test]
@@ -150,7 +150,7 @@ public class TokenizerHelperTests
     public void NextTokenRequiredEmptyThrows()
     {
         var tokenizer = new TokenizerHelper("' ", CultureInfo.InvariantCulture);
-        Assert.Throws<InvalidOperationException>(() => tokenizer.NextTokenRequired(true));
+        Assert.Throws<InvalidOperationException>((TestDelegate)(() => tokenizer.NextTokenRequired(true)));
     }
 
     [Test]
@@ -159,7 +159,7 @@ public class TokenizerHelperTests
         var tokenizer = new TokenizerHelper("a b'c ", CultureInfo.InvariantCulture);
         tokenizer.NextTokenRequired(true);
         tokenizer.NextTokenRequired(true);
-        Assert.Throws<InvalidOperationException>(() => tokenizer.NextTokenRequired(true));
+        Assert.Throws<InvalidOperationException>((TestDelegate)(() => tokenizer.NextTokenRequired(true)));
     }
 
     [Test]
@@ -167,7 +167,7 @@ public class TokenizerHelperTests
     {
         var tokenizer = new TokenizerHelper("a b", CultureInfo.InvariantCulture);
         tokenizer.NextTokenRequired();
-        Assert.Throws<InvalidOperationException>(tokenizer.LastTokenRequired);
+        Assert.Throws<InvalidOperationException>((TestDelegate)tokenizer.LastTokenRequired);
     }
 
     [Test]

@@ -12,12 +12,12 @@ public class HelixToolkitExceptionTests
     [Test]
     public void HelixToolkitException_Throw()
     {
-        Assert.Throws<HelixToolkitException>(() => HelixToolkitException.Throw("message"));
+        Assert.Throws<HelixToolkitException>((TestDelegate)(() => HelixToolkitException.Throw("message")));
     }
 
     [Test]
     public void HelixToolkitException_ThrowT()
     {
-        Assert.Throws<HelixToolkitException>(() => HelixToolkitException.Throw<int>("message"));
+        Assert.Throws<HelixToolkitException>((TestDelegate)(() => HelixToolkitException.Throw<int>("message")));
     }
 }

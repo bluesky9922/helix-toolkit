@@ -173,9 +173,9 @@ public class FastListTests
     public void RemoveAt_InvalidIndex_Throw()
     {
         var list = new FastList<int>([1, 2, 3]);
-        Assert.Throws<ArgumentOutOfRangeException>(() => list.RemoveAt(-1));
-        Assert.Throws<ArgumentOutOfRangeException>(() => list.RemoveAt(3));
-        Assert.Throws<ArgumentOutOfRangeException>(() => list.RemoveAt(5));
+        Assert.Throws<ArgumentOutOfRangeException>((TestDelegate)(() => list.RemoveAt(-1)));
+        Assert.Throws<ArgumentOutOfRangeException>((TestDelegate)(() => list.RemoveAt(3)));
+        Assert.Throws<ArgumentOutOfRangeException>((TestDelegate)(() => list.RemoveAt(5)));
     }
 
     [Test]

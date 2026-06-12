@@ -14,13 +14,13 @@ public class StringExtensionsTests
     {
         var s1 = "1 2  3".SplitOnWhitespace();
 
-        Assert.Multiple(() =>
+        Assert.Multiple((TestDelegate)(() =>
         {
             Assert.That(s1, Has.Length.EqualTo(3));
             Assert.That(s1[0], Is.EqualTo("1"));
             Assert.That(s1[1], Is.EqualTo("2"));
             Assert.That(s1[2], Is.EqualTo("3"));
-        });
+        }));
     }
 
     [Test]
@@ -28,13 +28,13 @@ public class StringExtensionsTests
     {
         var s1 = " 1 2  3 ".SplitOnWhitespace();
 
-        Assert.Multiple(() =>
+        Assert.Multiple((TestDelegate)(() =>
         {
             Assert.That(s1, Has.Length.EqualTo(3));
             Assert.That(s1[0], Is.EqualTo("1"));
             Assert.That(s1[1], Is.EqualTo("2"));
             Assert.That(s1[2], Is.EqualTo("3"));
-        });
+        }));
     }
 
     [Test]
@@ -42,13 +42,13 @@ public class StringExtensionsTests
     {
         var s1 = " 1 \t 2 \n  3 ".SplitOnWhitespace();
 
-        Assert.Multiple(() =>
+        Assert.Multiple((TestDelegate)(() =>
         {
             Assert.That(s1, Has.Length.EqualTo(3));
             Assert.That(s1[0], Is.EqualTo("1"));
             Assert.That(s1[1], Is.EqualTo("2"));
             Assert.That(s1[2], Is.EqualTo("3"));
-        });
+        }));
     }
 
     [Test]

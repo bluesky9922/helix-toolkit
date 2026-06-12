@@ -33,7 +33,7 @@ public class DoubleKeyDictionaryTests
 
         dict.Clear();
 
-        Assert.That(dict.Values.Count, Is.EqualTo(0));
+        Assert.That(dict.Values.Count(), Is.EqualTo(0));
     }
 
     [Test]

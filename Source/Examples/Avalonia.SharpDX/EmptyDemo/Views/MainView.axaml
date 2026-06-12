@@ -24,10 +24,6 @@
                     ShowCoordinateSystem="True"
                     ShowCameraInfo="True"
                     ShowFrameRate="True" >
-      <hx:AmbientLight3D/>
-      <hx:AxisPlaneGridModel3D UpAxis="X"/>
-      <hx:AxisPlaneGridModel3D UpAxis="Y"/>
-      <hx:AxisPlaneGridModel3D UpAxis="Z"/>
 
     </hx:Viewport3DX>
 
