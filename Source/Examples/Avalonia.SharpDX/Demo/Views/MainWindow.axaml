@@ -17,16 +17,16 @@
         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
-    <StackPanel>
-        <hx:Viewport3DX Width="800"
-                        Height="800"
+    <Grid RowDefinitions="*,auto" RowSpacing="5">
+        <hx:Viewport3DX 
                         Background="Black"
                         EffectsManager="{Binding EffectsManager}"
                         ShowCoordinateSystem="True"
                         ShowCameraInfo="True"
-                        ShowFrameRate="True" >
+                        ShowFrameRate="True" 
+                      >
             <hx:PointGeometryModel3D Geometry="{Binding PointCloud}" Color="White"/>
         </hx:Viewport3DX>
         <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    </StackPanel>
+    </Grid>
 </Window>
