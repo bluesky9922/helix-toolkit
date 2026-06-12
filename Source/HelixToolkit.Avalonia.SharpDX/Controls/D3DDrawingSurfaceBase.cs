@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using HelixToolkit.SharpDX;
 using HelixToolkit.SharpDX.Utilities;
 using SharpDX;
@@ -10,6 +11,8 @@ namespace HelixToolkit.Avalonia.SharpDX.Controls;
 
 internal class D3DDrawingSurfaceBase : Control, IRenderCanvas
 {
+    private const int MinimumRenderSize = 10;
+
     public IRenderHost? RenderHost { get; private set; }
 
     private double dpiScale = 1;
@@ -21,11 +24,7 @@ internal class D3DDrawingSurfaceBase : Control, IRenderCanvas
         set
         {
             dpiScale = value;
-
-            if (RenderHost != null)
-            {
-                RenderHost.DpiScale = (float)value;
-            }
+            ApplyDpiScale();
         }
     }
 
@@ -38,11 +37,7 @@ internal class D3DDrawingSurfaceBase : Control, IRenderCanvas
         set
         {
             enableDpiScale = value;
-
-            if (RenderHost != null)
-            {
-                RenderHost.DpiScale = value ? (float)DpiScale : 1;
-            }
+            ApplyDpiScale();
         }
     }
 
@@ -54,9 +49,7 @@ internal class D3DDrawingSurfaceBase : Control, IRenderCanvas
         VerticalAlignment = UIVerticalAlignment.Stretch;
 
         RenderHost = new D3DRenderHost(this);
-        RenderHost.DpiScale = EnableDpiScale ? (float)DpiScale : 1;
-        //RenderHost.StartRenderLoop += RenderHost_StartRenderLoop;
-        //RenderHost.StopRenderLoop += RenderHost_StopRenderLoop;
+        ApplyDpiScale();
         RenderHost.ExceptionOccurred += (s, e) => { HandleExceptionOccured(e.Exception); };
     }
 
@@ -70,11 +63,6 @@ internal class D3DDrawingSurfaceBase : Control, IRenderCanvas
         }
         catch (Exception ex)
         {
-            // Exceptions in the Loaded event handler are silently swallowed by WPF.
-            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/9ed3d13d-0b9f-48ac-ae8d-daf0845c9e8f/bug-in-wpf-windowloaded-exception-handling?forum=wpf
-            // http://stackoverflow.com/questions/19140593/wpf-exception-thrown-in-eventhandler-is-swallowed
-            // tl;dr: M$ says it's "by design" and "working as indended" but may change in the future :).
-
             if (!HandleExceptionOccured(ex))
             {
                 // todo: MessageBox
@@ -85,6 +73,12 @@ internal class D3DDrawingSurfaceBase : Control, IRenderCanvas
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
+        if (resizeOperation != null && resizeOperation.Status == DispatcherOperationStatus.Pending)
+        {
+            resizeOperation.Abort();
+        }
+
+        resizeOperation = null;
         EndD3D();
         base.OnDetachedFromVisualTree(e);
     }
@@ -100,13 +94,15 @@ internal class D3DDrawingSurfaceBase : Control, IRenderCanvas
             resizeOperation.Abort();
         }
 
+        resizeOperation = null;
+
         if (RenderHost is null)
         {
             return;
         }
 
-        int width = (int)e.NewSize.Width;
-        int height = (int)e.NewSize.Height;
+        int width = GetRenderLength(e.NewSize.Width);
+        int height = GetRenderLength(e.NewSize.Height);
 
         resizeOperation = Dispatcher.UIThread.InvokeAsync((Action)(() =>
         {
@@ -114,7 +110,6 @@ internal class D3DDrawingSurfaceBase : Control, IRenderCanvas
             {
                 try
                 {
-                    //RenderHost.Resize((int)ActualWidth, (int)ActualHeight);
                     RenderHost.Resize(width, height);
                 }
                 catch (Exception ex)
@@ -132,8 +127,7 @@ internal class D3DDrawingSurfaceBase : Control, IRenderCanvas
 
     private void StartD3D()
     {
-        //RenderHost?.StartD3D((int)ActualWidth, (int)ActualHeight);
-        RenderHost?.StartD3D((int)Width, (int)Height);
+        RenderHost?.StartD3D(GetRenderLength(Bounds.Width), GetRenderLength(Bounds.Height));
     }
 
     private void EndD3D()
@@ -149,15 +143,50 @@ internal class D3DDrawingSurfaceBase : Control, IRenderCanvas
             (sdxException.Descriptor == global::SharpDX.DXGI.ResultCode.DeviceRemoved ||
              sdxException.Descriptor == global::SharpDX.DXGI.ResultCode.DeviceReset))
         {
-            // Try to recover from DeviceRemoved/DeviceReset
-            StartD3D();
-            return true;
+            if (!IsLoaded || !this.IsAttachedToVisualTree())
+            {
+                return true;
+            }
+
+            try
+            {
+                StartD3D();
+                return true;
+            }
+            catch (Exception recoveryException)
+            {
+                exception = recoveryException;
+            }
         }
-        else
+
+        var args = new RelayExceptionEventArgs(exception);
+        ExceptionOccurred(this, args);
+        return args.Handled;
+    }
+
+    private void ApplyDpiScale()
+    {
+        if (RenderHost is null)
         {
-            var args = new RelayExceptionEventArgs(exception);
-            ExceptionOccurred(this, args);
-            return args.Handled;
+            return;
         }
+
+        float scale = 1;
+        if (EnableDpiScale && double.IsFinite(DpiScale) && DpiScale > 0)
+        {
+            scale = (float)DpiScale;
+        }
+
+        RenderHost.DpiScale = scale;
+    }
+
+    private static int GetRenderLength(double length)
+    {
+        if (!double.IsFinite(length) || length <= 0)
+        {
+            return MinimumRenderSize;
+        }
+
+        return Math.Max(MinimumRenderSize, (int)Math.Floor(length));
     }
 }
